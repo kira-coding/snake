@@ -1,1 +1,1 @@
-#🥅 Goal: Recreate the classic Snake game.
+# 🥅 Goal: Recreate the classic Snake game.
