@@ -1,33 +1,35 @@
 import pygame
 import random
 
-
+# Initialize Pygame
 pygame.init()
 
-
-WIDTH, HEIGHT = 800, 600
-window = pygame.display.set_mode((WIDTH,HEIGHT))
-pygame.display.set_caption("CS-snake")
+# Config
+dis_width, dis_height = 800, 600
+dis = pygame.display.set_mode((dis_width,dis_height))
+pygame.display.set_caption('Snake Game')
 clock = pygame.time.Clock()
 
+# Game params
 snake_block = 20
-snake_speed = 10
+snake_speed = 15
 white = (255, 255, 255)
-brown = (100, 0, 0)
+black = (0, 0, 0)
 red = (255, 0, 0)
 
 # Initial state
-x1 = WIDTH // 2
-y1 = HEIGHT // 2
+x1 = dis_width // 2
+y1 = dis_height // 2
 x1_change = 0
 y1_change = 0
-snake_parts = []
+snake_list = []
 length_of_snake = 1
-foodx = round(random.randrange(0, WIDTH - snake_block) /
+foodx = round(random.randrange(0, dis_width - snake_block) /
               snake_block) * snake_block
-foody = round(random.randrange(0, HEIGHT - snake_block) /
+foody = round(random.randrange(0, dis_height - snake_block) /
               snake_block) * snake_block
 
+# Main loop
 running = True
 while running:
     # Event handling
@@ -48,45 +50,46 @@ while running:
                 y1_change = snake_block
                 x1_change = 0
 
-
+    # Update position
     x1 += x1_change
     y1 += y1_change
 
+    # Boundary check
+    if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:
+        break
 
-
-
-
+    # Render
+    dis.fill(white)
+    pygame.draw.rect(dis, red, [foodx, foody, snake_block, snake_block])
 
     # Update snake body
     snake_head = [x1, y1]
-    snake_parts.append(snake_head)
-    if len(snake_parts) > length_of_snake:
-        del snake_parts[0]
+    snake_list.append(snake_head)
+    if len(snake_list) > length_of_snake:
+        del snake_list[0]
 
-    #collision boundary
-    if x1 >= WIDTH or x1 < 0 or y1 >= HEIGHT or y1 < 0:
-        break
-    for segment in snake_parts[:-1]:
+    # Self-collision check
+    for segment in snake_list[:-1]:
         if segment == snake_head:
             running = False
 
-    #snake draw call
-    for segment in snake_parts:
+    # Draw snake
+    for segment in snake_list:
         pygame.draw.rect(
-            window, brown, [segment[0], segment[1], snake_block, snake_block])
+            dis, black, [segment[0], segment[1], snake_block, snake_block])
 
-    #score
-    font = pygame.font.SysFont("sans-serif", 35)
-    score_text = font.render(f"Score: {length_of_snake - 1}", True, brown)
-    window.blit(score_text, [10, 10])
+    # Score display
+    font = pygame.font.SysFont(None, 35)
+    score_text = font.render(f"Score: {length_of_snake - 1}", True, black)
+    dis.blit(score_text, [10, 10])
 
     pygame.display.update()
 
-    #food
+    # Food collision
     if x1 == foodx and y1 == foody:
         foodx = round(random.randrange(
-            0, WIDTH - snake_block) / snake_block) * snake_block
-        foody = round(random.randrange(0, HEIGHT -
+            0, dis_width - snake_block) / snake_block) * snake_block
+        foody = round(random.randrange(0, dis_height -
                       snake_block) / snake_block) * snake_block
         length_of_snake += 1
 
