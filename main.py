@@ -1,98 +1,68 @@
-import pygame
 import random
-
-# Initialize Pygame
+import pygame
 pygame.init()
 
-# Config
-dis_width, dis_height = 800, 600
-dis = pygame.display.set_mode((dis_width,dis_height))
-pygame.display.set_caption('Snake Game')
+isRunning = True
 clock = pygame.time.Clock()
+fps=15
 
-# Game params
-snake_block = 20
-snake_speed = 15
-white = (255, 255, 255)
-black = (0, 0, 0)
-red = (255, 0, 0)
+WIDTH,HEIGHT= 800,400
+display = pygame.display.set_mode((WIDTH,HEIGHT))
+pygame.display.set_caption("snake Game")
 
-# Initial state
-x1 = dis_width // 2
-y1 = dis_height // 2
-x1_change = 0
-y1_change = 0
-snake_list = []
-length_of_snake = 1
-foodx = round(random.randrange(0, dis_width - snake_block) /
-              snake_block) * snake_block
-foody = round(random.randrange(0, dis_height - snake_block) /
-              snake_block) * snake_block
+snake_x =WIDTH//2
+snake_y =HEIGHT//2
+snake_body=[]
+snake_length=1
+Move_X=0
+Move_Y=0
+BLOCK=20
+food_x= round(random.randrange(0,WIDTH-BLOCK)/BLOCK)*BLOCK
+food_y= round(random.randrange(0,HEIGHT-BLOCK)/BLOCK)*BLOCK
+while isRunning:
 
-# Main loop
-running = True
-while running:
-    # Event handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
+            isRunning=False
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT and x1_change == 0:
-                x1_change = -snake_block
-                y1_change = 0
-            elif event.key == pygame.K_RIGHT and x1_change == 0:
-                x1_change = snake_block
-                y1_change = 0
-            elif event.key == pygame.K_UP and y1_change == 0:
-                y1_change = -snake_block
-                x1_change = 0
-            elif event.key == pygame.K_DOWN and y1_change == 0:
-                y1_change = snake_block
-                x1_change = 0
-
-    # Update position
-    x1 += x1_change
-    y1 += y1_change
-
-    # Boundary check
-    if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:
-        break
-
-    # Render
-    dis.fill(white)
-    pygame.draw.rect(dis, red, [foodx, foody, snake_block, snake_block])
-
-    # Update snake body
-    snake_head = [x1, y1]
-    snake_list.append(snake_head)
-    if len(snake_list) > length_of_snake:
-        del snake_list[0]
-
-    # Self-collision check
-    for segment in snake_list[:-1]:
+            if event.key == pygame.K_DOWN and Move_Y==0:
+                Move_X=0
+                Move_Y=BLOCK
+            if event.key == pygame.K_UP and Move_Y==0:
+                Move_X=0
+                Move_Y=-BLOCK
+            if event.key == pygame.K_LEFT and Move_X==0:
+                Move_X=-BLOCK
+                Move_Y=0
+            if event.key == pygame.K_RIGHT and Move_X==0:
+                Move_X=BLOCK
+                Move_Y=0
+    snake_x+=Move_X
+    snake_y+=Move_Y
+    snake_head=[snake_x,snake_y]
+    snake_body.append(snake_head)
+    if len(snake_body)>snake_length:
+        print("deleted")
+        del snake_body[0]
+        display.fill("white")
+    pygame.draw.rect(display,"blue",[food_x,food_y,BLOCK,BLOCK])
+    for segment in snake_body[:-1]:
         if segment == snake_head:
-            running = False
-
-    # Draw snake
-    for segment in snake_list:
-        pygame.draw.rect(
-            dis, black, [segment[0], segment[1], snake_block, snake_block])
-
-    # Score display
-    font = pygame.font.SysFont(None, 35)
-    score_text = font.render(f"Score: {length_of_snake - 1}", True, black)
-    dis.blit(score_text, [10, 10])
-
+            isRunning = False
+            break
+    if snake_x<=0 or snake_y<=0 or  snake_x >= WIDTH or snake_y>=HEIGHT:
+        isRunning=False
+    for segment in snake_body:
+        pygame.draw.rect(display,"black",[segment[0],segment[1],BLOCK,BLOCK])
+    
+    if food_x == snake_x and food_y==snake_y:
+        food_x= round(random.randrange(0,WIDTH-BLOCK)/BLOCK)*BLOCK
+        food_y= round(random.randrange(0,HEIGHT-BLOCK)/BLOCK)*BLOCK
+        snake_length+=1
+    font = pygame.font.SysFont(None,50)
+    score_text =font.render("Score: "+ str(snake_length),True,"brown")
+    display.blit(score_text,[5,5])
     pygame.display.update()
-
-    # Food collision
-    if x1 == foodx and y1 == foody:
-        foodx = round(random.randrange(
-            0, dis_width - snake_block) / snake_block) * snake_block
-        foody = round(random.randrange(0, dis_height -
-                      snake_block) / snake_block) * snake_block
-        length_of_snake += 1
-
-    clock.tick(snake_speed)
+    clock.tick(fps)
 
 pygame.quit()
